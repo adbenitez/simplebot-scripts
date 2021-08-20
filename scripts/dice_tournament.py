@@ -2,7 +2,7 @@ import random
 import time
 
 import simplebot
-import simplebot_score as sc
+import simplebot_score as sc  # noqa
 
 db: sc.DBManager
 DICES = ("⚀", "⚁", "⚂", "⚃", "⚄", "⚅")
@@ -76,7 +76,7 @@ def taberna(bot, message, replies) -> None:
 def _roll_dice():
     dices = []
     total = 0
-    for i in range(2):
+    for _ in range(2):
         rand = random.randrange(0, 6)
         total += rand + 1
         dices.append(DICES[rand])

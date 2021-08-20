@@ -1,6 +1,7 @@
 """Administrator tools."""
 
 import subprocess
+from typing import Optional
 
 import simplebot
 from deltachat import account_hookimpl
@@ -35,17 +36,18 @@ def deltabot_init(bot) -> None:
 
 
 @simplebot.hookimpl(tryfirst=True)
-def deltabot_incoming_message(bot, message, replies):
+def deltabot_incoming_message(bot, message) -> Optional[bool]:
     contact = message.get_sender_contact()
     if contact.addr in get_banned(bot):
         contact.block()
         bot.plugins._pm.hook.deltabot_ban(bot=bot, contact=contact)
         contact.block()
         return True
+    return None
 
 
 @simplebot.hookimpl
-def deltabot_member_added(bot, chat, contact, actor) -> None:
+def deltabot_member_added(bot, chat, contact) -> None:
     if contact.addr in get_banned(bot):
         chat.remove_contact(contact)
         contact.block()
@@ -113,14 +115,14 @@ def config(payload, bot, replies) -> None:
         replies.add(text="{}: {}".format(key, bot.account.get_config(key)))
 
 
-@simplebot.command(admin=True)
-def exec(payload, replies) -> None:
+@simplebot.command(name="/exec", admin=True)
+def exec_cmd(payload, replies) -> None:
     """Execute shell command."""
     replies.add(text=subprocess.check_output(payload, shell=True))
 
 
 @simplebot.command(name="/eval", admin=True)
-def cmd_eval(payload, bot, command, message, replies) -> None:
+def cmd_eval(payload, bot, command, message, replies) -> None:  # noqa
     """Evaluate python code."""
     eval(payload)
 

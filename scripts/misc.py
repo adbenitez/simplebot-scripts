@@ -17,7 +17,7 @@ def deltabot_member_added(bot, chat, contact, actor) -> None:
 
 
 @simplebot.filter
-def filter_messages(message, replies, bot) -> None:
+def filter_messages(message, bot) -> None:
     """Send me OPENPGP4FPR links to verify yourself."""
     if message.text.startswith("OPENPGP4FPR:") and "g=" not in message.text:
         addr = message.get_sender_contact().addr
@@ -37,13 +37,13 @@ try:
             replies.add(text=resp.json()["insult"], quote=message.quote)
 
     @simplebot.command
-    def advice(message, replies) -> None:
+    def advice(replies) -> None:
         """get random advice."""
         with requests.get("https://api.adviceslip.com/advice") as resp:
             replies.add(text=resp.json()["slip"]["advice"])
 
     @simplebot.command
-    def chuckjoke(message, replies) -> None:
+    def chuckjoke(replies) -> None:
         """get random Chuck Norris joke."""
         with requests.get(
             "http://api.icndb.com/jokes/random?escape=javascript"
@@ -51,7 +51,7 @@ try:
             replies.add(text=resp.json()["value"]["joke"])
 
     @simplebot.command
-    def joke(payload, message, replies) -> None:
+    def joke(payload, replies) -> None:
         """get random joke."""
         with requests.get(
             f"https://v2.jokeapi.dev/joke/Any?format=txt&contains={payload}"
@@ -59,7 +59,7 @@ try:
             replies.add(text=resp.text)
 
     @simplebot.command
-    def dadjoke(message, replies) -> None:
+    def dadjoke(replies) -> None:
         """get random dad joke."""
         headers = {
             "User-Agent": "SimpleBot (https://github.com/simplebot-org/simplebot)",
@@ -77,7 +77,7 @@ try:
     import upsidedown
 
     @simplebot.command
-    def flip(payload, message, replies) -> None:
+    def flip(payload, replies) -> None:
         """Flip given text."""
         replies.add(text=upsidedown.transform(payload or "no text given"))
 
