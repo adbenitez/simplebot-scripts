@@ -1,4 +1,4 @@
-> My personal collection of small script-plugins for SimpleBot
+	My personal collection of small script-plugins for SimpleBot
 
 How to use?
 -----------
