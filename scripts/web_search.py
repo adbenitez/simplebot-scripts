@@ -28,4 +28,4 @@ def search(payload: str, replies: Replies) -> None:
 def _search(query: str) -> tuple:
     with session.get(f"https://duckduckgo.com/html?q={quote_plus(query)}") as resp:
         resp.raise_for_status()
-        return prepare_html(resp.text)
+        return prepare_html(resp.url, resp.text)
