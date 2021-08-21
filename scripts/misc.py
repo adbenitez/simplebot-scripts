@@ -42,19 +42,19 @@ def chiste(replies) -> None:
 
 def _chistes() -> str:
     with requests.get("http://www.chistes.com/ChisteAlAzar.asp?n=1") as resp:
-        soup = bs4.BeautifulSoup(resp.text, "html.parser")
+        soup = bs4.BeautifulSoup(resp.text, "html5lib")
     return _soup2text(soup.find(class_="chiste")) + "\n\nFuente: http://www.chistes.com"
 
 
 def _chistalia() -> str:
     with requests.get("https://chistalia.es/aleatorio/") as resp:
-        soup = bs4.BeautifulSoup(resp.text, "html.parser")
+        soup = bs4.BeautifulSoup(resp.text, "html5lib")
     return _soup2text(soup.blockquote) + "\n\nFuente: https://chistalia.es"
 
 
 def _todo_chistes() -> str:
     with requests.get("http://todo-chistes.com/chistes-al-azar") as resp:
-        soup = bs4.BeautifulSoup(resp.text, "html.parser")
+        soup = bs4.BeautifulSoup(resp.text, "html5lib")
     return (
         _soup2text(soup.find(class_="field-chiste"))
         + "\n\nFuente: http://todo-chistes.com"
@@ -63,19 +63,20 @@ def _todo_chistes() -> str:
 
 def _elclubdeloschistes() -> str:
     with requests.get("https://elclubdeloschistes.com/azar.php") as resp:
-        soup = bs4.BeautifulSoup(resp.text, "html.parser")
+        soup = bs4.BeautifulSoup(resp.text, "html5lib")
     soup.b.extract()
     for tag in soup("a"):
         tag.extract()
     text = _soup2text(soup.find(class_="texto"))
-    if text == "ID:":
+    text = text[: text.rfind("ID:")].strip()
+    if not text:
         return ""
-    return text[: text.rfind("\n")] + "\n\nFuente: https://elclubdeloschistes.com"
+    return text + "\n\nFuente: https://elclubdeloschistes.com"
 
 
 def _soup2text(soup: bs4.BeautifulSoup) -> str:
     for tag in soup("br"):
-        tag.replace_with(f"\n{tag.text}\n" if tag.text else "\n")
+        tag.replace_with("\n")
     lines = []
     for line in soup.get_text().split("\n"):
         line = line.strip()
