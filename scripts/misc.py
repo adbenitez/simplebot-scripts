@@ -76,7 +76,12 @@ def _elclubdeloschistes() -> str:
 def _soup2text(soup: bs4.BeautifulSoup) -> str:
     for tag in soup("br"):
         tag.replace_with("\n")
-    return "\n".join(soup.get_text().split("\n")).strip()
+    lines = []
+    for line in soup.get_text().split("\n"):
+        line = line.strip()
+        if line:
+            lines.append(line)
+    return "\n".join(lines).strip()
 
 
 @simplebot.command
