@@ -75,7 +75,7 @@ def _elclubdeloschistes() -> str:
 
 def _soup2text(soup: bs4.BeautifulSoup) -> str:
     for tag in soup("br"):
-        tag.replace_with("\n")
+        tag.replace_with(f"\n{tag.text}\n" if tag.text else "\n")
     lines = []
     for line in soup.get_text().split("\n"):
         line = line.strip()
