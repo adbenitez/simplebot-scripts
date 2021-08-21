@@ -31,7 +31,11 @@ def filter_messages(message, bot) -> None:
 @simplebot.command
 def chiste(replies) -> None:
     """Envía un chiste al azar."""
-    replies.add(text=random.choice((_chistes, _todo_chistes, _elclubdeloschistes))())
+    while True:
+        joke = random.choice((_chistes, _todo_chistes, _elclubdeloschistes))()
+        if joke:
+            break
+    replies.add(text=joke)
 
 
 def _chistes() -> str:
@@ -56,6 +60,8 @@ def _elclubdeloschistes() -> str:
     for tag in soup("a"):
         tag.extract()
     joke = _soup2text(soup.find(class_="texto"))
+    if joke == "ID:":
+        return ""
     return joke[: joke.rfind("\n")] + "\n\nFuente: https://elclubdeloschistes.com"
 
 
