@@ -32,16 +32,24 @@ def filter_messages(message, bot) -> None:
 def chiste(replies) -> None:
     """Envía un chiste al azar."""
     while True:
-        joke = random.choice((_chistes, _todo_chistes, _elclubdeloschistes))()
-        if joke:
+        text = random.choice(
+            (_chistes, _chistalia, _todo_chistes, _elclubdeloschistes)
+        )()
+        if text:
             break
-    replies.add(text=joke)
+    replies.add(text=text)
 
 
 def _chistes() -> str:
     with requests.get("http://www.chistes.com/ChisteAlAzar.asp?n=1") as resp:
         soup = bs4.BeautifulSoup(resp.text, "html.parser")
     return _soup2text(soup.find(class_="chiste")) + "\n\nFuente: http://www.chistes.com"
+
+
+def _chistalia() -> str:
+    with requests.get("https://chistalia.es/aleatorio/") as resp:
+        soup = bs4.BeautifulSoup(resp.text, "html.parser")
+    return _soup2text(soup.blockquote) + "\n\nFuente: https://chistalia.es"
 
 
 def _todo_chistes() -> str:
@@ -59,10 +67,10 @@ def _elclubdeloschistes() -> str:
     soup.b.extract()
     for tag in soup("a"):
         tag.extract()
-    joke = _soup2text(soup.find(class_="texto"))
-    if joke == "ID:":
+    text = _soup2text(soup.find(class_="texto"))
+    if text == "ID:":
         return ""
-    return joke[: joke.rfind("\n")] + "\n\nFuente: https://elclubdeloschistes.com"
+    return text[: text.rfind("\n")] + "\n\nFuente: https://elclubdeloschistes.com"
 
 
 def _soup2text(soup: bs4.BeautifulSoup) -> str:
