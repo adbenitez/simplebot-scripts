@@ -29,6 +29,15 @@ try:
     import requests
 
     @simplebot.command
+    def chiste(payload, replies) -> None:
+        """Envía un chiste al azar."""
+        import bs4
+        with requests.get("http://www.chistes.com/ChisteAlAzar.asp?n=1") as resp:
+            soup = bs4.BeautifulSoup(resp.text, "html.parser")
+            joke = soup.find("div", class_="chiste").get_text()
+            replies.add(text=joke)
+
+    @simplebot.command
     def insult(payload, message, replies) -> None:
         """insult quoted message."""
         with requests.get(
