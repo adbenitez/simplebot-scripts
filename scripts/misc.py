@@ -118,9 +118,9 @@ def flip(payload, replies) -> None:
 
 @simplebot.command(admin=True)
 def html2img(payload, message, replies) -> None:
+    """html to image"""
     import imgkit
 
-    """html to image"""
     options = {
         "format": "webp",
         "width": "370",
