@@ -23,6 +23,9 @@ session.request = functools.partial(session.request, timeout=30)  # type: ignore
 @simplebot.command
 def image(bot: DeltaBot, payload: str, message: Message, replies: Replies) -> None:
     """Get an image based on the given text."""
+    if not payload:
+        replies.add(text="❌ No text given", quote=message)
+        return
     imgs = _download_images(bot, payload, 1)
     if not imgs:
         replies.add(text="❌ No results", quote=message)
@@ -34,6 +37,9 @@ def image(bot: DeltaBot, payload: str, message: Message, replies: Replies) -> No
 @simplebot.command
 def image5(bot: DeltaBot, payload: str, message: Message, replies: Replies) -> None:
     """Search for images, returns 5 results."""
+    if not payload:
+        replies.add(text="❌ No text given", quote=message)
+        return
     imgs = _download_images(bot, payload, 5)
     if not imgs:
         replies.add(text="❌ No results", quote=message)
