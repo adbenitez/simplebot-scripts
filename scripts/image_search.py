@@ -105,7 +105,7 @@ def _startpage_imgs(query: str) -> set:
         url = url.rsplit("/", 1)[0]
     links = set()
     for div in soup(class_="image-container"):
-        if div.img.startswith("data:"):
+        if not div.img or div.img.startswith("data:"):
             continue
         img = re.sub(r"^(//.*)", r"{}:\1".format(root.split(":", 1)[0]), div.img)
         img = re.sub(r"^(/.*)", r"{}\1".format(root), img)
