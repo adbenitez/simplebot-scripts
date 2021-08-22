@@ -170,5 +170,5 @@ def text2html(payload, replies) -> None:
 @simplebot.command
 def file2html(payload, message, replies) -> None:
     """Reply back received HTML file as html message."""
-    with open(message.filename) as file:
+    with open(message.filename, encoding="utf-8") as file:
         replies.add(text=payload, html=file.read())
