@@ -72,9 +72,9 @@ def _get_images(bot: DeltaBot, query: str) -> Generator:
                     yield filename, resp.content
         except Exception as err:
             bot.logger.exception(err)
-            if not img_providers and img_providers_low:
-                img_providers.extend(img_providers_low)
-                img_providers_low.clear()
+        if not img_providers and img_providers_low:
+            img_providers.extend(img_providers_low)
+            img_providers_low.clear()
 
 
 def _google_imgs(query: str) -> set:
