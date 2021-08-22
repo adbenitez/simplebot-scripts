@@ -29,7 +29,7 @@ def image(bot: DeltaBot, payload: str, message: Message, replies: Replies) -> No
 
 @simplebot.command
 def image5(bot: DeltaBot, payload: str, message: Message, replies: Replies) -> None:
-    """Search for images, returns 5 results."""
+    """Search for images, returns up to five results."""
     _image_cmd(5, bot, payload, message, replies)
 
 
@@ -119,20 +119,6 @@ def _alphacoders(query: str) -> list:
         if tag.img["src"].startswith("data:"):
             continue
         imgs.append(tag.img["src"])
-    return imgs
-
-
-def _wallpaperflare(query: str) -> list:
-    url = f"https://www.wallpaperflare.com/search?width=&height=&wallpaper={quote_plus(query)}"
-    with session.get(url) as resp:
-        resp.raise_for_status()
-        soup = bs4.BeautifulSoup(resp.text, "html5lib")
-    soup = soup.find(id="gallery")
-    imgs = []
-    for tag in soup("img", attrs={"data-src": True}):
-        if tag["data-src"].startswith("data:"):
-            continue
-        imgs.append(tag["data-src"])
     return imgs
 
 
