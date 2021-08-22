@@ -65,13 +65,11 @@ def _get_images(bot: DeltaBot, query: str) -> Generator:
         img_providers.remove(provider)
         try:
             bot.logger.debug("Trying %s", provider)
-            imgs = provider(query)
-            if imgs:
-                for img_url in imgs:
-                    with session.get(img_url) as resp:
-                        resp.raise_for_status()
-                        filename = "image" + (get_extension(resp) or ".jpg")
-                        yield filename, resp.content
+            for img_url in provider(query):
+                with session.get(img_url) as resp:
+                    resp.raise_for_status()
+                    filename = "image" + (get_extension(resp) or ".jpg")
+                    yield filename, resp.content
         except Exception as err:
             bot.logger.exception(err)
             if not img_providers and img_providers_low:
@@ -79,21 +77,21 @@ def _get_images(bot: DeltaBot, query: str) -> Generator:
                 img_providers_low.clear()
 
 
-def _google_imgs(query: str) -> list:
+def _google_imgs(query: str) -> set:
     url = f"https://www.google.com/search?tbm=isch&sout=1&q={quote_plus(query)}"
     with session.get(url) as resp:
         resp.raise_for_status()
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
-    imgs = []
+    links = set()
     for table in soup("table"):
         for img in table("img"):
             if img["src"].startswith("data:"):
                 continue
-            imgs.append(img["src"])
-    return imgs
+            links.add(img["src"])
+    return links
 
 
-def _startpage_imgs(query: str) -> list:
+def _startpage_imgs(query: str) -> set:
     url = f"https://startpage.com/do/search?cat=pics&cmd=process_search&query={quote_plus(query)}"
     with session.get(url) as resp:
         resp.raise_for_status()
@@ -105,7 +103,7 @@ def _startpage_imgs(query: str) -> list:
     else:
         root = url[:index]
         url = url.rsplit("/", 1)[0]
-    imgs = []
+    links = set()
     for div in soup(class_="image-container"):
         if div.img.startswith("data:"):
             continue
@@ -113,61 +111,61 @@ def _startpage_imgs(query: str) -> list:
         img = re.sub(r"^(/.*)", r"{}\1".format(root), img)
         if not re.match(r"^https?://", img):
             img = f"{url}/{img}"
-        imgs.append(img)
-    return imgs
+        links.add(img)
+    return links
 
 
-def _alphacoders(query: str) -> list:
+def _alphacoders(query: str) -> set:
     url = f"https://pics.alphacoders.com/search?t={quote_plus(query)}"
     with session.get(url) as resp:
         resp.raise_for_status()
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
-    imgs = []
+    links = set()
     for tag in soup("img", class_="img-thumb"):
         if tag.img["src"].startswith("data:"):
             continue
-        imgs.append(tag.img["src"])
-    return imgs
+        links.add(tag.img["src"])
+    return links
 
 
-def _unsplash(query: str) -> list:
+def _unsplash(query: str) -> set:
     url = f"https://unsplash.com/s/photos/{quote(query)}"
     with session.get(url) as resp:
         resp.raise_for_status()
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
-    imgs = []
+    links = set()
     for tag in soup("img", itemprop="thumbnailUrl"):
         if tag["src"].startswith("data:"):
             continue
-        imgs.append(tag["src"])
-    return imgs
+        links.add(tag["src"])
+    return links
 
 
-def _everypixel(query: str) -> list:
+def _everypixel(query: str) -> set:
     url = f"https://www.everypixel.com/search?meaning=&stocks_type=free&media_type=0&page=1&q={quote_plus(query)}"
     with session.get(url) as resp:
         resp.raise_for_status()
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
-    imgs = []
+    links = set()
     for tag in soup(class_="thumb"):
         if tag.img["src"].startswith("data:"):
             continue
-        imgs.append(tag.img["src"])
-    return imgs
+        links.add(tag.img["src"])
+    return links
 
 
-def _dogpile_imgs(query: str) -> list:
+def _dogpile_imgs(query: str) -> set:
     url = f"https://www.dogpile.com/search/images?q={quote_plus(query)}"
     with session.get(url) as resp:
         resp.raise_for_status()
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
     soup = soup.find("div", class_="mainline-results")
     if not soup:
-        return []
-    links = []
+        return set()
+    links = set()
     for anchor in soup("a"):
         if anchor.img:
-            links.append(anchor["href"])
+            links.add(anchor["href"])
     return links
 
 
