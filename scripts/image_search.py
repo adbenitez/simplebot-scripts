@@ -122,9 +122,9 @@ def _alphacoders(query: str) -> set:
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
     links = set()
     for tag in soup("img", class_="img-thumb"):
-        if tag.img["src"].startswith("data:"):
+        if tag["src"].startswith("data:"):
             continue
-        links.add(tag.img["src"])
+        links.add(tag["src"])
     return links
 
 
