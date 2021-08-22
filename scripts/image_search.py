@@ -3,6 +3,7 @@ import io
 import mimetypes
 import random
 import re
+from typing import Generator
 from urllib.parse import quote, quote_plus
 
 import bs4
@@ -38,26 +39,17 @@ def _image_cmd(
     if not payload:
         replies.add(text="❌ No text given", quote=message)
         return
-    imgs = _download_images(bot, payload, img_count)
-    if not imgs:
+    imgs = img_count
+    for filename, data in _get_images(bot, payload):
+        replies.add(filename=filename, bytefile=io.BytesIO(data))
+        imgs -= 1
+        if imgs <= 0:
+            break
+    if imgs == img_count:
         replies.add(text="❌ No results", quote=message)
-    else:
-        for reply in imgs:
-            replies.add(**reply)
 
 
-def _download_images(bot: DeltaBot, query: str, img_count: int) -> list:
-    imgs = _get_images(bot, query)
-    results = []
-    for img_url in imgs[:img_count]:
-        with session.get(img_url) as resp:
-            resp.raise_for_status()
-            filename = "image" + (get_extension(resp) or ".jpg")
-            results.append(dict(filename=filename, bytefile=io.BytesIO(resp.content)))
-    return results
-
-
-def _get_images(bot: DeltaBot, query: str) -> list:
+def _get_images(bot: DeltaBot, query: str) -> Generator:
     img_providers = [_wallpaperflare, _unsplash, _everypixel, _dogpile_imgs]
     img_providers_low = [_alphacoders, _google_imgs, _startpage_imgs]
     while img_providers:
@@ -67,13 +59,16 @@ def _get_images(bot: DeltaBot, query: str) -> list:
             bot.logger.debug("Trying %s", provider)
             imgs = provider(query)
             if imgs:
-                return imgs
+                for img_url in imgs:
+                    with session.get(img_url) as resp:
+                        resp.raise_for_status()
+                        filename = "image" + (get_extension(resp) or ".jpg")
+                        yield filename, resp.content
         except Exception as err:
             bot.logger.exception(err)
             if not img_providers and img_providers_low:
                 img_providers.extend(img_providers_low)
                 img_providers_low.clear()
-    return []
 
 
 def _google_imgs(query: str) -> list:
