@@ -19,12 +19,16 @@ def compress(bot: DeltaBot, payload: str, message: Message, replies: Replies) ->
     /compress https://fsf.org
     """
     try:
-        with session.get(prepare_url(payload, bot)) as resp:
+        with session.get(prepare_url(payload, bot), stream=True) as resp:
             resp.raise_for_status()
-            _, html = prepare_html(
-                bot.self_contact.addr, resp.url, resp.text, "/compress "
-            )
-        replies.add(filename=save_htmlzip(bot, html), quote=message)
+            content_type = resp.headers.get("content-type", "").lower()
+            if "text/html" in content_type:
+                _, html = prepare_html(
+                    bot.self_contact.addr, resp.url, resp.text, "/compress "
+                )
+                replies.add(filename=save_htmlzip(bot, html), quote=message)
+            else:
+                replies.add(text="❌ That is not a web page", quote=message)
     except requests.exceptions.RequestException as ex:
         bot.logger.exception(ex)
         replies.add(text="❌ Invalid request", quote=message)
