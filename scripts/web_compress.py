@@ -18,8 +18,11 @@ def compress(bot: DeltaBot, payload: str, message: Message, replies: Replies) ->
     Example:
     /compress https://fsf.org
     """
+    url = prepare_url(payload, bot)
+    if not url.startswith("http"):
+        url = f"http://{url}"
     try:
-        with session.get(prepare_url(payload, bot), stream=True) as resp:
+        with session.get(url, stream=True) as resp:
             resp.raise_for_status()
             content_type = resp.headers.get("content-type", "").lower()
             if "text/html" in content_type:
