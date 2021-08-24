@@ -1,5 +1,7 @@
 import asyncio
 import os
+import subprocess
+import sys
 from tempfile import NamedTemporaryFile
 
 import simplebot
@@ -20,9 +22,9 @@ def web2image(bot: DeltaBot, payload: str, message: Message, replies: Replies) -
     ) as file:
         path = file.name
 
-    asyncio.get_event_loop().run_until_complete(take_screenshot(payload, path))
-    size = os.stat(message.filename).st_size
-    if size > 0:
+    subprocess.call((sys.executable, __file__, payload, path))
+
+    if os.stat(path).st_size > 0:
         replies.add(filename=path, quote=message)
     else:
         os.remove(path)
@@ -37,3 +39,7 @@ async def take_screenshot(url: str, path: str) -> None:
     await page.goto(url)
     await page.screenshot({"path": path})
     await browser.close()
+
+
+if __name__ == "__main__":
+    asyncio.get_event_loop().run_until_complete(take_screenshot(*sys.argv[1:]))  # noqa
