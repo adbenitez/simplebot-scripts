@@ -37,7 +37,7 @@ async def take_screenshot(url: str, path: str) -> None:
     browser = await launch()
     page = await browser.newPage()
     await page.goto(url)
-    await page.screenshot({"path": path})
+    await page.screenshot({"path": path, "fullPage": "true"})
     await browser.close()
 
 
