@@ -1,3 +1,7 @@
+"""If you have issues with sandboxing try:
+sudo sysctl -w kernel.unprivileged_userns_clone=1
+"""
+
 import asyncio
 import os
 import subprocess
@@ -24,9 +28,15 @@ def web2image(bot: DeltaBot, payload: str, message: Message, replies: Replies) -
     ) as file:
         path = file.name
 
-    subprocess.call((sys.executable, __file__, payload, path))
+    try:
+        error = bool(
+            subprocess.call((sys.executable, __file__, payload, path), timeout=60)
+        )
+    except subprocess.TimeoutExpired as ex:
+        bot.logger.exception(ex)
+        error = True
 
-    if os.stat(path).st_size > 0:
+    if not error and os.stat(path).st_size > 0:
         replies.add(filename=path, quote=message)
     else:
         os.remove(path)
