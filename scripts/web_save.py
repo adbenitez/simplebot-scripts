@@ -17,28 +17,12 @@ def web2image(bot: DeltaBot, payload: str, message: Message, replies: Replies) -
     Example:
     /web2image https://fsf.org
     """
-    _save_page(".png", bot, payload, message, replies)
-
-
-@simplebot.command
-def web2pdf(bot: DeltaBot, payload: str, message: Message, replies: Replies) -> None:
-    """Get the given web page as PDF.
-
-    Example:
-    /web2pdf https://fsf.org
-    """
-    _save_page(".pdf", bot, payload, message, replies)
-
-
-def _save_page(
-    extension: str, bot: DeltaBot, url: str, message: Message, replies: Replies
-) -> None:
     with NamedTemporaryFile(
-        dir=bot.account.get_blobdir(), prefix="web-", suffix=extension, delete=False
+        dir=bot.account.get_blobdir(), prefix="web-", suffix=".png", delete=False
     ) as file:
         path = file.name
 
-    subprocess.call((sys.executable, __file__, url, path))
+    subprocess.call((sys.executable, __file__, payload, path))
 
     if os.stat(path).st_size > 0:
         replies.add(filename=path, quote=message)
@@ -51,10 +35,7 @@ async def save_page(url: str, path: str) -> None:
     browser = await launch()
     page = await browser.newPage()
     await page.goto(url)
-    if path.endswith("pdf"):
-        await page.pdf({"path": path})
-    else:
-        await page.screenshot({"path": path, "fullPage": "true"})
+    await page.screenshot({"path": path, "fullPage": "true"})
     await browser.close()
 
 
