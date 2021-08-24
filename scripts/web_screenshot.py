@@ -17,6 +17,8 @@ def web2image(bot: DeltaBot, payload: str, message: Message, replies: Replies) -
     Example:
     /web2image https://fsf.org
     """
+    if not payload.startswith("http"):
+        payload = "http://" + payload
     with NamedTemporaryFile(
         dir=bot.account.get_blobdir(), prefix="web-", suffix=".png", delete=False
     ) as file:
