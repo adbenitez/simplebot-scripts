@@ -39,7 +39,7 @@ def compress(bot: DeltaBot, payload: str, message: Message, replies: Replies) ->
 
 def save_htmlzip(bot, html) -> str:
     with NamedTemporaryFile(
-        dir=bot.account.get_blobdir(), prefix="web-", suffix=".html.zip", delete=False
+        dir=bot.account.get_blobdir(), prefix="web-", suffix=".htmlzip", delete=False
     ) as file:
         path = file.name
     with open(path, "wb") as f:
