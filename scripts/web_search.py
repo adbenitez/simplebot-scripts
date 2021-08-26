@@ -14,17 +14,6 @@ def search_filter(bot: DeltaBot, message: Message, replies: Replies) -> None:
         replies.add(text=text or "Search results", html=html, quote=message)
 
 
-@simplebot.command
-def search(bot: DeltaBot, payload: str, message: Message, replies: Replies) -> None:
-    """Search the web.
-
-    Example:
-    /search download Delta Chat for GNU/Linux
-    """
-    text, html = _search(bot.self_contact.addr, payload)
-    replies.add(text=text or "Search results", html=html, quote=message)
-
-
 def _search(bot_addr: str, query: str) -> tuple:
     with session.get(f"https://duckduckgo.com/lite?q={quote_plus(query)}") as resp:
         resp.raise_for_status()
