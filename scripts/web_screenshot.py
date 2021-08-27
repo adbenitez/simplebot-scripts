@@ -10,7 +10,7 @@ from tempfile import NamedTemporaryFile
 
 import simplebot
 from deltachat import Message
-from pyppeteer import launch
+from pyppeteer import launch  # noqa
 from simplebot.bot import DeltaBot, Replies
 
 
