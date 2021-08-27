@@ -59,6 +59,7 @@ def deltabot_member_added(bot, chat, contact) -> None:
 
 @simplebot.command(admin=True)
 def stats(replies) -> None:
+    """Get bot and computer state."""
     mem = psutil.virtual_memory()
     swap = psutil.swap_memory()
     disk = psutil.disk_usage(os.path.expanduser("~/.simplebot/"))
