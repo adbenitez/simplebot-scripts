@@ -4,7 +4,7 @@ import simplebot
 import youtube_dl
 from deltachat import Message
 from simplebot.bot import DeltaBot, Replies
-from simplebot_downloader import queue_download
+from simplebot_downloader import queue_download  # noqa
 
 
 @simplebot.command
@@ -14,7 +14,7 @@ def yt2video(bot: DeltaBot, payload: str, message: Message, replies: Replies) ->
     Example:
     /yt2video https://www.youtube.com/watch?v=tZpxR8iM19s
     """
-    queue_download(message.text, bot, message, replies, download_ytvideo)
+    queue_download(payload, bot, message, replies, download_ytvideo)
 
 
 @simplebot.command
@@ -24,7 +24,7 @@ def yt2audio(bot: DeltaBot, payload: str, message: Message, replies: Replies) ->
     Example:
     /yt2audio https://www.youtube.com/watch?v=tZpxR8iM19s
     """
-    queue_download(message.text, bot, message, replies, download_ytaudio)
+    queue_download(payload, bot, message, replies, download_ytaudio)
 
 
 def download_ytvideo(url: str, folder: str, max_size: int) -> str:
