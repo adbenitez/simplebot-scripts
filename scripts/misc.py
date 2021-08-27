@@ -2,7 +2,7 @@
 
 import io
 import random
-from urllib.parse import unquote_plus
+from urllib.parse import quote, unquote_plus
 
 import bs4
 import requests
@@ -172,3 +172,11 @@ def file2html(payload, message, replies) -> None:
     """Reply back received HTML file as html message."""
     with open(message.filename, encoding="utf-8") as file:
         replies.add(text=payload, html=file.read())
+
+
+@simplebot.command
+def wttr(bot, payload, message, replies) -> None:
+    """Search weather info from wttr.in"""
+    url = f"https://wttr.in/{quote(payload)}_Fnp_lang=en"
+    with requests.get(url) as resp:
+        replies.add(html=resp.text)
