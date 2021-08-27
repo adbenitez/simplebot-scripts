@@ -178,5 +178,8 @@ def file2html(payload, message, replies) -> None:
 def wttr(payload, message, replies) -> None:
     """Search weather info from wttr.in"""
     url = f"https://wttr.in/{quote(payload)}?Fnp&lang=en"
-    with requests.get(url) as resp:
+    {
+        "user-agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
+    }
+    with requests.get(url, headers=headers) as resp:
         replies.add(text="Result from wttr.in", html=resp.text, quote=message)
