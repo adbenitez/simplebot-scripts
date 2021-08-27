@@ -1,8 +1,10 @@
 """Administrator tools."""
 
+import os
 import subprocess
 from typing import Optional
 
+import psutil
 import simplebot
 from deltachat import account_hookimpl
 
@@ -53,6 +55,26 @@ def deltabot_member_added(bot, chat, contact) -> None:
         contact.block()
         bot.plugins._pm.hook.deltabot_ban(bot=bot, contact=contact)
         contact.block()
+
+
+@simplebot.command(admin=True)
+def stats(replies) -> None:
+    mem = psutil.virtual_memory()
+    swap = psutil.swap_memory()
+    disk = psutil.disk_usage(os.path.expanduser("~/.simplebot/"))
+    proc = psutil.Process()
+    botmem = proc.memory_full_info()
+    replies.add(
+        text="**🖥️ Computer Stats:**\n"
+        f"CPU: {psutil.cpu_percent(interval=0.1)}%\n"
+        f"Memory: {sizeof_fmt(mem.used)}/{sizeof_fmt(mem.total)}\n"
+        f"Swap: {sizeof_fmt(swap.used)}/{sizeof_fmt(swap.total)}\n"
+        f"Disk: {sizeof_fmt(disk.used)}/{sizeof_fmt(disk.total)}\n\n"
+        "**🤖 Bot Stats:**\n"
+        f"CPU: {proc.cpu_percent(interval=0.1)}%\n"
+        f"Memory: {sizeof_fmt(botmem.rss)}\n"
+        f"Swap: {sizeof_fmt(botmem.swap if 'swap' in botmem._fields else 0)}"
+    )
 
 
 @simplebot.command(admin=True)
@@ -153,3 +175,12 @@ def add_banned(bot, addrs) -> list:
         contact.block()
 
     return banned
+
+
+def sizeof_fmt(num: float) -> str:
+    suffix = "B"
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, "Yi", suffix)
