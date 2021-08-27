@@ -20,12 +20,23 @@ def deltabot_member_added(bot, chat, contact, actor) -> None:
 
 
 @simplebot.filter
-def filter_messages(message, bot) -> None:
+def verification_filter(message, bot) -> None:
     """Send me OPENPGP4FPR links to verify yourself."""
     if message.text.startswith("OPENPGP4FPR:") and "g=" not in message.text:
         addr = message.get_sender_contact().addr
         if "a=" + addr in unquote_plus(message.text) or bot.is_admin(addr):
             bot.account.qr_setup_contact(message.text)
+
+
+@simplebot.filter
+def html2file_filter(message, replies) -> None:
+    """Send me an html message in private to get html content as file."""
+    if not message.chat.is_group() and message.has_html():
+        replies.add(
+            filename="message.html",
+            bytefile=io.BytesIO(message.html.encode(errors="replace")),
+            quote=message,
+        )
 
 
 @simplebot.command
@@ -134,20 +145,6 @@ def flip(payload, replies) -> None:
     import upsidedown
 
     replies.add(text=upsidedown.transform(payload or "no text given"))
-
-
-@simplebot.command(admin=True)
-def html2img(payload, message, replies) -> None:
-    """html to image"""
-    import imgkit
-
-    options = {
-        "format": "webp",
-        "width": "370",
-        "quality": "80",
-    }
-    img = imgkit.from_url(payload, False, options=options)
-    replies.add(filename="html.webp", bytefile=io.BytesIO(img), quote=message)
 
 
 @simplebot.command(name="/echoAs")
