@@ -4,7 +4,7 @@ import simplebot
 import youtube_dl
 from deltachat import Message
 from simplebot.bot import DeltaBot, Replies
-from simplebot_dowloader import queue_download
+from simplebot_downloader import queue_download
 
 
 @simplebot.command
