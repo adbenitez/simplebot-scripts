@@ -179,4 +179,4 @@ def wttr(payload, message, replies) -> None:
     """Search weather info from wttr.in"""
     url = f"https://wttr.in/{quote(payload)}_Fnp_lang=en"
     with requests.get(url) as resp:
-        replies.add(text="Result from wttr,in", html=resp.text, quote=message)
+        replies.add(text="Result from wttr.in", html=resp.text, quote=message)
