@@ -2,7 +2,7 @@
 
 import io
 import random
-from urllib.parse import quote, unquote_plus
+from urllib.parse import quote
 
 import bs4
 import requests
@@ -17,15 +17,6 @@ def deltabot_member_added(bot, chat, contact, actor) -> None:
         and not bot.is_admin(contact.addr)
     ):
         chat.remove_contact(contact)
-
-
-@simplebot.filter
-def verification_filter(message, bot) -> None:
-    """Send me OPENPGP4FPR links to verify yourself."""
-    if message.text.startswith("OPENPGP4FPR:") and "g=" not in message.text:
-        addr = message.get_sender_contact().addr
-        if "a=" + addr in unquote_plus(message.text) or bot.is_admin(addr):
-            bot.account.qr_setup_contact(message.text)
 
 
 @simplebot.filter
