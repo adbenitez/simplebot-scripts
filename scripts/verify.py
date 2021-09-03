@@ -3,7 +3,7 @@ To use first install dependencies:
     pip install "qrcode[pil]"
     pip install pyzbar
 
-You will need to install the zbar shared library:
+You will need to install the zbar shared library to extract QR data from images:
     sudo apt-get install libzbar0
 """
 
