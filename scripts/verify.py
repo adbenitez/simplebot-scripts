@@ -4,11 +4,12 @@ To use first install dependencies:
 """
 
 import io
+from urllib.parse import unquote_plus
+
 import qrcode
 import simplebot
-from urllib.parse import unquote_plus
-from simplebot.bot import DeltaBot, Replies
 from deltachat import Message
+from simplebot.bot import DeltaBot, Replies
 
 
 @simplebot.filter
