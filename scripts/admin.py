@@ -4,6 +4,7 @@ import os
 import subprocess
 from typing import Optional
 
+import deltachat
 import psutil
 import simplebot
 from deltachat import account_hookimpl
@@ -74,7 +75,9 @@ def stats(replies) -> None:
         "**🤖 Bot Stats:**\n"
         f"CPU: {proc.cpu_percent(interval=0.1)}%\n"
         f"Memory: {sizeof_fmt(botmem.rss)}\n"
-        f"Swap: {sizeof_fmt(botmem.swap if 'swap' in botmem._fields else 0)}"
+        f"Swap: {sizeof_fmt(botmem.swap if 'swap' in botmem._fields else 0)}\n"
+        f"SimpleBot: {simplebot.__version__}\n"
+        f"DeltaChat: {deltachat.__version__}\n"
     )
 
 
