@@ -32,7 +32,7 @@ def download_ytvideo(url: str, folder: str, max_size: int) -> str:
         "format": f"best[filesize<{max_size}]",
         "max_downloads": 1,
         "socket_timeout": 15,
-        "outtmpl": os.path.join(folder, "%(title)s.%(ext)s"),
+        "outtmpl": os.path.join(folder, "%(id)s.%(ext)s"),
     }
     with youtube_dl.YoutubeDL(opts) as yt:
         yt.download([url])
