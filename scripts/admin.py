@@ -2,16 +2,17 @@
 
 import os
 import subprocess
-from typing import Optional
+from typing import List, Optional, Set
 
 import deltachat
 import psutil
 import simplebot
 from deltachat import account_hookimpl
+from simplebot.bot import DeltaBot, Replies
 
 
 class AccountPlugin:
-    def __init__(self, bot):
+    def __init__(self, bot: DeltaBot) -> None:
         self.bot = bot
 
     def _clean_group(self, chat_id: int, msg_id: int) -> None:
@@ -34,12 +35,12 @@ class AccountPlugin:
 
 
 @simplebot.hookimpl
-def deltabot_init(bot) -> None:
+def deltabot_init(bot: DeltaBot) -> None:
     bot.account.add_account_plugin(AccountPlugin(bot))
 
 
 @simplebot.hookimpl(tryfirst=True)
-def deltabot_incoming_message(bot, message) -> Optional[bool]:
+def deltabot_incoming_message(bot: DeltaBot, message) -> Optional[bool]:
     contact = message.get_sender_contact()
     if contact.addr in get_banned(bot):
         contact.block()
@@ -50,7 +51,7 @@ def deltabot_incoming_message(bot, message) -> Optional[bool]:
 
 
 @simplebot.hookimpl
-def deltabot_member_added(bot, chat, contact) -> None:
+def deltabot_member_added(bot: DeltaBot, chat, contact) -> None:
     if contact.addr in get_banned(bot):
         chat.remove_contact(contact)
         contact.block()
@@ -59,7 +60,7 @@ def deltabot_member_added(bot, chat, contact) -> None:
 
 
 @simplebot.command(admin=True)
-def stats(replies) -> None:
+def stats(replies: Replies) -> None:
     """Get bot and computer state."""
     mem = psutil.virtual_memory()
     swap = psutil.swap_memory()
@@ -82,17 +83,14 @@ def stats(replies) -> None:
 
 
 @simplebot.command(admin=True)
-def ban2(bot, payload, replies) -> None:
+def ban2(bot: DeltaBot, payload: str, replies: Replies) -> None:
     """ban forever."""
-    if payload:
-        banned = add_banned(bot, payload.split())
-    else:
-        banned = get_banned(bot)
-    replies.add(text=f"Banned ({len(banned)}):\n\n" + "\n".join(banned))
+    banned = add_banned(bot, payload.split()) if payload else get_banned(bot)
+    replies.add(text=f"Banned ({len(banned)})", html="<br>".join(banned))
 
 
 @simplebot.command(admin=True)
-def move(bot, payload, message) -> None:
+def move(bot: DeltaBot, payload: str, message) -> None:
     """move to group."""
     c = message.quote.get_sender_contact()
     message.chat.remove_contact(c)
@@ -103,11 +101,11 @@ def move(bot, payload, message) -> None:
 
 
 @simplebot.command(admin=True)
-def unban2(bot, payload, replies) -> None:
+def unban2(bot: DeltaBot, payload: str, replies: Replies) -> None:
     """unban forever."""
     if payload:
         banned = del_banned(bot, payload.split())
-        replies.add(text=f"Banned ({len(banned)}):\n\n" + "\n".join(banned))
+        replies.add(text=f"Banned ({len(banned)})", html="<br>".join(banned))
 
 
 @simplebot.command(admin=True)
@@ -123,7 +121,7 @@ def add(message) -> None:
 
 
 @simplebot.command(admin=True)
-def destroy(message, bot) -> None:
+def destroy(bot: DeltaBot, message) -> None:
     """Destroy group."""
     for c in message.chat.get_contacts():
         if c != bot.self_contact:
@@ -131,7 +129,7 @@ def destroy(message, bot) -> None:
 
 
 @simplebot.command(admin=True)
-def config(payload, bot, replies) -> None:
+def config(payload: str, bot: DeltaBot, replies: Replies) -> None:
     """set config"""
     args = payload.split(maxsplit=1)
     if len(args) == 2:
@@ -142,7 +140,7 @@ def config(payload, bot, replies) -> None:
 
 
 @simplebot.command(name="/exec", admin=True)
-def exec_cmd(payload, replies) -> None:
+def exec_cmd(payload: str, replies: Replies) -> None:
     """Execute shell command."""
     replies.add(text=subprocess.check_output(payload, shell=True))
 
@@ -153,31 +151,28 @@ def cmd_eval(payload, bot, command, message, replies) -> None:  # noqa
     eval(payload)
 
 
-def get_banned(bot) -> list:
-    return (bot.get("banned", scope=__name__) or "").split()
+def get_banned(bot: DeltaBot) -> Set[str]:
+    return set((bot.get("banned", scope=__name__) or "").split())
 
 
-def del_banned(bot, addrs) -> list:
-    banned = [addr for addr in get_banned(bot) if addr not in addrs]
+def del_banned(bot: DeltaBot, addrs: List[str]) -> Set[str]:
+    banned = get_banned(bot) - set(addrs)
     bot.set("banned", " ".join(banned), scope=__name__)
     for addr in addrs:
         contact = bot.get_contact(addr)
         contact.unblock()
         bot.plugins._pm.hook.deltabot_unban(bot=bot, contact=contact)
-        contact.unblock()
-
     return banned
 
 
-def add_banned(bot, addrs) -> list:
-    banned = get_banned(bot) + addrs
+def add_banned(bot: DeltaBot, addrs: List[str]) -> Set[str]:
+    banned = get_banned(bot).union(set(addrs))
     bot.set("banned", " ".join(banned), scope=__name__)
     for addr in addrs:
         contact = bot.get_contact(addr)
         contact.block()
         bot.plugins._pm.hook.deltabot_ban(bot=bot, contact=contact)
         contact.block()
-
     return banned
 
 
