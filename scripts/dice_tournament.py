@@ -55,6 +55,7 @@ def taberna(bot, message, replies) -> None:
             return
         user1 = _get_opponent(user2.addr, session)
         if user1:
+            user2.score -= BET
             roll1 = _roll_dice()
             roll2 = _roll_dice()
             while sum(roll1) == sum(roll2):
