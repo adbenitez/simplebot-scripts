@@ -49,7 +49,7 @@ def taberna(bot, message, replies) -> None:
         score = user2.score if user2 else 0
         if score < BET:
             replies.add(
-                text=f"❌ No tienes {badge} suficientes para entrar a la taberna",
+                text=f"❌ No tienes {badge} suficiente para entrar a la taberna",
                 quote=message,
             )
             return
