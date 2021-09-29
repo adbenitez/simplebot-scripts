@@ -4,6 +4,8 @@ from threading import Thread
 from typing import Optional
 
 import simplebot
+from deltachat import Message
+from simplebot.bot import DeltaBot, Replies
 from simplebot_score import _getdefault  # noqa
 from simplebot_score.orm import Base, User, session_scope  # noqa
 from sqlalchemy import Column, Float, String
@@ -26,7 +28,7 @@ class Tavern(Base):
 
 
 @simplebot.hookimpl
-def deltabot_init(bot: simplebot.DeltaBot) -> None:
+def deltabot_init(bot: DeltaBot) -> None:
     badge = _getdefault(bot, "score_badge", "🎖️")
     desc = f"Probar suerte jugando dados en la taberna, para entrar debes pagar {BET}{badge}"
 
@@ -34,11 +36,58 @@ def deltabot_init(bot: simplebot.DeltaBot) -> None:
 
 
 @simplebot.hookimpl
-def deltabot_start(bot: simplebot.DeltaBot) -> None:
+def deltabot_start(bot: DeltaBot) -> None:
     Thread(target=_check_tavern, args=(bot,)).start()
 
 
-def taberna(bot, message, replies) -> None:
+@simplebot.command(name="/diceTournament", admin=True)
+def dice_tournament_cmd(bot: DeltaBot, replies: Replies) -> None:
+    """Create a dice tournament with all users that have score.
+
+    -1 is discounted from every user, the winner gets all.
+    """
+    badge = _getdefault(bot, "score_badge", "🎖️")
+    winner = None
+    winner_roll = 0
+    price = 0
+    addrs = []
+    with session_scope() as session:
+        for user in session.query(User).filter(User.score > 0):
+            user.score -= 1
+            price += 1
+            bot.get_chat(user.addr).send_text(
+                f"🏆 Fuiste seleccionad@ para participar en un torneo de azar para usuarios con {badge}"
+            )
+            addrs.append(user.addr)
+            roll = sum(_roll_dice(5))
+            if roll == winner_roll:
+                roll2 = winner_roll
+                while roll == roll2:
+                    roll = sum(_roll_dice(5))
+                    roll2 = sum(_roll_dice(5))
+                if roll > roll2:
+                    winner = user
+            elif roll > winner_roll:
+                winner_roll = roll
+                winner = user
+        if winner:
+            winner.score += price
+        else:
+            replies.add(text="❌ No hay usuarios suficientes para realizar un torneo")
+    if winner:
+        time.sleep(10)
+        for addr in addrs:
+            if addr == winner.addr:
+                text = f"🥇 Ganaste el torneo!!! 🎉 Recibes +{price - 1}{badge}"
+            else:
+                text = f"💀 Perdiste el torneo, se te descontó -1{badge}"
+            replies.add(text=text, chat=bot.get_chat(addr))
+        replies.add(
+            f"🏆 El torneo terminó:\n\nGanador: {winner.addr}\nParticipantes: {len(addr)}"
+        )
+
+
+def taberna(bot: DeltaBot, message: Message, replies: Replies) -> None:
     badge = _getdefault(bot, "score_badge", "🎖️")
     with session_scope() as session:
         user2 = (
@@ -114,7 +163,7 @@ def _get_opponent(addr: str, session) -> Optional[User]:
     return None
 
 
-def _check_tavern(bot: simplebot.DeltaBot) -> None:
+def _check_tavern(bot: DeltaBot) -> None:
     badge = _getdefault(bot, "score_badge", "🎖️")
     while True:
         try:
