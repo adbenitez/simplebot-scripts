@@ -48,6 +48,7 @@ def dice_tournament_cmd(bot: DeltaBot, replies: Replies) -> None:
     """
     badge = _getdefault(bot, "score_badge", "🎖️")
     winner = None
+    winner_addr = None
     winner_roll = 0
     price = 0
     addrs = []
@@ -74,18 +75,19 @@ def dice_tournament_cmd(bot: DeltaBot, replies: Replies) -> None:
                 winner = user
         if winner:
             winner.score += price
+            winner_addr = winner.addr
         else:
             replies.add(text="❌ No hay usuarios suficientes para realizar un torneo")
-    if winner:
+    if winner_addr:
         time.sleep(10)
         for addr in addrs:
-            if addr == winner.addr:
+            if addr == winner_addr:
                 text = f"🥇 Ganaste el torneo!!! 🎉 Recibes +{price - 1}{badge}"
             else:
                 text = f"💀 Perdiste el torneo, se te descontó -1{badge}"
             replies.add(text=text, chat=bot.get_chat(addr))
         replies.add(
-            f"🏆 El torneo terminó:\n\nGanador: {winner.addr}\nParticipantes: {len(addrs)}"
+            f"🏆 El torneo terminó:\n\nGanador: {winner_addr}\nParticipantes: {len(addrs)}"
         )
 
 
