@@ -83,7 +83,7 @@ def dice_tournament_cmd(bot: DeltaBot, replies: Replies) -> None:
                 text = f"💀 Perdiste el torneo, se te descontó -1{badge}"
             replies.add(text=text, chat=bot.get_chat(addr))
         replies.add(
-            f"🏆 El torneo terminó:\n\nGanador: {winner.addr}\nParticipantes: {len(addr)}"
+            f"🏆 El torneo terminó:\n\nGanador: {winner.addr}\nParticipantes: {len(addrs)}"
         )
 
 
