@@ -20,7 +20,7 @@ class AccountPlugin:
             return
         error = self.bot.account.get_message_by_id(msg_id).error
         for c in chat.get_contacts():
-            if "<{}>".format(c.addr) in error:
+            if f"<{c.addr}>" in error:
                 # TODO: remove after N errors
                 chat.remove_contact(c)
 
@@ -88,7 +88,7 @@ def ban2(bot, payload, replies) -> None:
         banned = add_banned(bot, payload.split())
     else:
         banned = get_banned(bot)
-    replies.add(text="Banned ({}):\n\n{}".format(len(banned), "\n".join(banned)))
+    replies.add(text=f"Banned ({len(banned)}):\n\n" + "\n".join(banned))
 
 
 @simplebot.command(admin=True)
@@ -107,7 +107,7 @@ def unban2(bot, payload, replies) -> None:
     """unban forever."""
     if payload:
         banned = del_banned(bot, payload.split())
-        replies.add(text="Banned ({}):\n\n{}".format(len(banned), "\n".join(banned)))
+        replies.add(text=f"Banned ({len(banned)}):\n\n" + "\n".join(banned))
 
 
 @simplebot.command(admin=True)
@@ -138,7 +138,7 @@ def config(payload, bot, replies) -> None:
         key, val = args
         bot.account.set_config(key, val)
     else:
-        replies.add(text="{}: {}".format(key, bot.account.get_config(key)))
+        replies.add(text=f"{key}: {bot.account.get_config(key)}")
 
 
 @simplebot.command(name="/exec", admin=True)
