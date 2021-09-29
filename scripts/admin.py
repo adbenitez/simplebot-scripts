@@ -83,9 +83,14 @@ def stats(replies: Replies) -> None:
 
 
 @simplebot.command(admin=True)
-def ban2(bot: DeltaBot, payload: str, replies: Replies) -> None:
+def ban2(bot: DeltaBot, payload: str, message, replies: Replies) -> None:
     """ban forever."""
-    banned = add_banned(bot, payload.split()) if payload else get_banned(bot)
+    if payload:
+        banned = add_banned(bot, payload.split())
+    elif message.quote:
+        banned = add_banned(bot, message.quote.get_sender_contact().addr.split())
+    else:
+        banned = get_banned(bot)
     replies.add(text=f"Banned ({len(banned)})", html="<br>".join(banned))
 
 
