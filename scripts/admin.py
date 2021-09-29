@@ -185,6 +185,6 @@ def sizeof_fmt(num: float) -> str:
     suffix = "B"
     for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
         if abs(num) < 1024.0:
-            return "%3.1f%s%s" % (num, unit, suffix)
+            return "%3.1f%s%s" % (num, unit, suffix)  # noqa
         num /= 1024.0
-    return "%.1f%s%s" % (num, "Yi", suffix)
+    return "%.1f%s%s" % (num, "Yi", suffix)  # noqa
