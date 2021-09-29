@@ -102,7 +102,7 @@ def taberna(bot: DeltaBot, message: Message, replies: Replies) -> None:
         score = user2.score if user2 else 0
         if score < BET:
             replies.add(
-                text=f"❌ No tienes {badge} suficiente para entrar a la taberna",
+                text=f"❌ Debes tener al menos {BET}{badge} para entrar a la taberna",
                 quote=message,
             )
             return
