@@ -52,7 +52,9 @@ def dice_tournament_cmd(bot: DeltaBot, replies: Replies) -> None:
     price = 0
     addrs = []
     with session_scope() as session:
-        for user in session.query(User).filter(User.score > 0):
+        for user in (
+            session.query(User).filter(User.score > 0).order_by(User.score).limit(100)
+        ):
             user.score -= 1
             price += 1
             bot.get_chat(user.addr).send_text(
