@@ -44,8 +44,8 @@ def deltabot_start(bot: DeltaBot) -> None:
 def dice_tournament_cmd(bot: DeltaBot, args: list, replies: Replies) -> None:
     """Create a dice tournament with all users that have score."""
     badge = _getdefault(bot, "score_badge", "🎖️")
-    minimum_score = args.pop(0) if args else 1
-    maximum_score = args.pop(0) if args else -1
+    minimum_score = int(args.pop(0) if args else 1)
+    maximum_score = int(args.pop(0) if args else -1)
     winner = None
     winner_addr = None
     winner_roll = 0
