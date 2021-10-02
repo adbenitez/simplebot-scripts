@@ -59,8 +59,8 @@ def dice_tournament_cmd(bot: DeltaBot, args: list, replies: Replies) -> None:
         else:
             query = session.query(User).filter(User.score >= minimum_score)
         for user in query.order_by(User.score).limit(100):
-            user.score -= 1
-            price += 1
+            user.score -= minimum_score
+            price += minimum_score
             bot.get_chat(user.addr).send_text(
                 f"🏆 Fuiste seleccionad@ para participar en un torneo de azar para usuarios con {badge}"
             )
@@ -85,9 +85,9 @@ def dice_tournament_cmd(bot: DeltaBot, args: list, replies: Replies) -> None:
         time.sleep(10)
         for addr in addrs:
             if addr == winner_addr:
-                text = f"🥇 Ganaste el torneo!!! 🎉 Recibes +{price - 1}{badge}"
+                text = f"🥇 Ganaste el torneo!!! 🎉 Recibes +{price - minimum_score}{badge}"
             else:
-                text = f"💀 Perdiste el torneo, se te descontó -1{badge}"
+                text = f"💀 Perdiste el torneo, se te descontó -{minimum_score}{badge}"
             replies.add(text=text, chat=bot.get_chat(addr))
         replies.add(
             f"🏆 El torneo terminó:\n\nGanador: {winner_addr}\nParticipantes: {len(addrs)}"
