@@ -41,21 +41,24 @@ def deltabot_start(bot: DeltaBot) -> None:
 
 
 @simplebot.command(name="/diceTournament", admin=True)
-def dice_tournament_cmd(bot: DeltaBot, replies: Replies) -> None:
-    """Create a dice tournament with all users that have score.
-
-    -1 is discounted from every user, the winner gets all.
-    """
+def dice_tournament_cmd(bot: DeltaBot, args: list, replies: Replies) -> None:
+    """Create a dice tournament with all users that have score."""
     badge = _getdefault(bot, "score_badge", "🎖️")
+    minimum_score = args.pop(0) if args else 1
+    maximum_score = args.pop(0) if args else -1
     winner = None
     winner_addr = None
     winner_roll = 0
     price = 0
     addrs = []
     with session_scope() as session:
-        for user in (
-            session.query(User).filter(User.score > 0).order_by(User.score).limit(100)
-        ):
+        if maximum_score > minimum_score:
+            query = session.query(User).filter(User.score >= minimum_score, User.score <= maximum_score)
+        elif maximum_score == minimum_score:
+            query = session.query(User).filter(User.score == minimum_score)
+        else:
+            query = session.query(User).filter(User.score >= minimum_score)
+        for user in query.order_by(User.score).limit(100):
             user.score -= 1
             price += 1
             bot.get_chat(user.addr).send_text(
