@@ -7,36 +7,7 @@ from typing import List, Optional, Set
 import deltachat
 import psutil
 import simplebot
-from deltachat import account_hookimpl
 from simplebot.bot import DeltaBot, Replies
-
-
-class AccountPlugin:
-    def __init__(self, bot: DeltaBot) -> None:
-        self.bot = bot
-
-    def _clean_group(self, chat_id: int, msg_id: int) -> None:
-        chat = self.bot.get_chat(chat_id)
-        if not chat.is_group():
-            return
-        error = self.bot.account.get_message_by_id(msg_id).error
-        for c in chat.get_contacts():
-            if f"<{c.addr}>" in error:
-                # TODO: remove after N errors
-                chat.remove_contact(c)
-
-    @account_hookimpl
-    def ac_process_ffi_event(self, ffi_event):
-        if ffi_event.name == "DC_EVENT_MSG_FAILED":
-            try:
-                self._clean_group(ffi_event.data1, ffi_event.data2)
-            except Exception as ex:
-                self.bot.logger.exception(ex)
-
-
-@simplebot.hookimpl
-def deltabot_init(bot: DeltaBot) -> None:
-    bot.account.add_account_plugin(AccountPlugin(bot))
 
 
 @simplebot.hookimpl(tryfirst=True)
