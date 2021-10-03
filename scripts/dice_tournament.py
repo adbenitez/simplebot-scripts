@@ -53,7 +53,9 @@ def dice_tournament_cmd(bot: DeltaBot, args: list, replies: Replies) -> None:
     addrs = []
     with session_scope() as session:
         if maximum_score > minimum_score:
-            query = session.query(User).filter(User.score >= minimum_score, User.score <= maximum_score)
+            query = session.query(User).filter(
+                User.score >= minimum_score, User.score <= maximum_score
+            )
         elif maximum_score == minimum_score:
             query = session.query(User).filter(User.score == minimum_score)
         else:
@@ -85,7 +87,9 @@ def dice_tournament_cmd(bot: DeltaBot, args: list, replies: Replies) -> None:
         time.sleep(10)
         for addr in addrs:
             if addr == winner_addr:
-                text = f"🥇 Ganaste el torneo!!! 🎉 Recibes +{price - minimum_score}{badge}"
+                text = (
+                    f"🥇 Ganaste el torneo!!! 🎉 Recibes +{price - minimum_score}{badge}"
+                )
             else:
                 text = f"💀 Perdiste el torneo, se te descontó -{minimum_score}{badge}"
             replies.add(text=text, chat=bot.get_chat(addr))
