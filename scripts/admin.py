@@ -14,6 +14,7 @@ from simplebot.bot import DeltaBot, Replies
 def deltabot_incoming_message(bot: DeltaBot, message) -> Optional[bool]:
     contact = message.get_sender_contact()
     if contact.addr in get_banned(bot):
+        bot.logger.debug("Incoming message from banned contact: %s", contact.addr)
         contact.block()
         bot.plugins._pm.hook.deltabot_ban(bot=bot, contact=contact)
         contact.block()
@@ -24,6 +25,7 @@ def deltabot_incoming_message(bot: DeltaBot, message) -> Optional[bool]:
 @simplebot.hookimpl
 def deltabot_member_added(bot: DeltaBot, chat, contact) -> None:
     if contact.addr in get_banned(bot):
+        bot.logger.debug("Banned contact added: %s", contact.addr)
         chat.remove_contact(contact)
         contact.block()
         bot.plugins._pm.hook.deltabot_ban(bot=bot, contact=contact)
