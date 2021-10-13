@@ -58,8 +58,8 @@ def _image_cmd(
 
 
 def _get_images(bot: DeltaBot, query: str) -> Generator:
-    img_providers = [_unsplash, _everypixel, _dogpile_imgs]
-    img_providers_low = [_alphacoders, _google_imgs, _startpage_imgs]
+    img_providers = [_google_imgs, _startpage_imgs, _dogpile_imgs]
+    img_providers_low = [_alphacoders, _unsplash, _everypixel]
     while img_providers:
         provider = random.choice(img_providers)
         img_providers.remove(provider)
