@@ -40,6 +40,22 @@ def html2file_filter(message, replies) -> None:
 
 
 @simplebot.command
+def lottery(replies) -> None:
+    """Florida's lottery results."""
+    import feedparser
+
+    with session.get("https://flalottery.com/video/en/theWinningNumber.xml") as resp:
+        resp.raise_for_status()
+        d = feedparser.parse(resp.text)
+    text = ""
+    for entry in d.entries:
+        if entry.title.lower().startswith(("pick 3", "pick 4")):
+            text += f"{entry.description}\n\n"
+    assert text
+    replies.add(text="**🎰 Drawing Results**\n\n" + text)
+
+
+@simplebot.command
 def chiste(replies) -> None:
     """Envía un chiste al azar."""
     while True:
