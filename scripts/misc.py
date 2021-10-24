@@ -52,7 +52,7 @@ def chiste(replies) -> None:
 
 
 def _chistes() -> str:
-    with session.get("http://www.chistes.com/ChisteAlAzar.asp?n=1") as resp:
+    with session.get("http://www.chistes.com/ChisteAlAzar.asp?n=2") as resp:
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
     return _soup2text(soup.find(class_="chiste")) + "\n\nFuente: http://www.chistes.com"
 
