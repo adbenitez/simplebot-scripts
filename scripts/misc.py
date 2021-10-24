@@ -1,5 +1,6 @@
 """Miscellaneous small commands and filters."""
 
+import functools
 import io
 import random
 from urllib.parse import quote
@@ -7,6 +8,14 @@ from urllib.parse import quote
 import bs4
 import requests
 import simplebot
+
+session = requests.Session()
+session.headers.update(
+    {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:92.0) Gecko/20100101 Firefox/92.0"
+    }
+)
+session.request = functools.partial(session.request, timeout=15)  # type: ignore
 
 
 @simplebot.hookimpl
@@ -43,19 +52,19 @@ def chiste(replies) -> None:
 
 
 def _chistes() -> str:
-    with requests.get("http://www.chistes.com/ChisteAlAzar.asp?n=1") as resp:
+    with session.get("http://www.chistes.com/ChisteAlAzar.asp?n=1") as resp:
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
     return _soup2text(soup.find(class_="chiste")) + "\n\nFuente: http://www.chistes.com"
 
 
 def _chistalia() -> str:
-    with requests.get("https://chistalia.es/aleatorio/") as resp:
+    with session.get("https://chistalia.es/aleatorio/") as resp:
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
     return _soup2text(soup.blockquote) + "\n\nFuente: https://chistalia.es"
 
 
 def _todo_chistes() -> str:
-    with requests.get("http://todo-chistes.com/chistes-al-azar") as resp:
+    with session.get("http://todo-chistes.com/chistes-al-azar") as resp:
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
     return (
         _soup2text(soup.find(class_="field-chiste"))
@@ -64,7 +73,7 @@ def _todo_chistes() -> str:
 
 
 def _elclubdeloschistes() -> str:
-    with requests.get("https://elclubdeloschistes.com/azar.php") as resp:
+    with session.get("https://elclubdeloschistes.com/azar.php") as resp:
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
     soup.b.extract()
     for tag in soup("a"):
@@ -90,7 +99,7 @@ def _soup2text(soup: bs4.BeautifulSoup) -> str:
 @simplebot.command
 def insult(payload, message, replies) -> None:
     """insult quoted message."""
-    with requests.get(
+    with session.get(
         f"https://evilinsult.com/generate_insult.php?lang={payload}&type=json"
     ) as resp:
         replies.add(text=resp.json()["insult"], quote=message.quote)
@@ -99,21 +108,21 @@ def insult(payload, message, replies) -> None:
 @simplebot.command
 def advice(replies) -> None:
     """get random advice."""
-    with requests.get("https://api.adviceslip.com/advice") as resp:
+    with session.get("https://api.adviceslip.com/advice") as resp:
         replies.add(text=resp.json()["slip"]["advice"])
 
 
 @simplebot.command
 def chuckjoke(replies) -> None:
     """get random Chuck Norris joke."""
-    with requests.get("http://api.icndb.com/jokes/random?escape=javascript") as resp:
+    with session.get("http://api.icndb.com/jokes/random?escape=javascript") as resp:
         replies.add(text=resp.json()["value"]["joke"])
 
 
 @simplebot.command
 def joke(payload, replies) -> None:
     """get random joke."""
-    with requests.get(
+    with session.get(
         f"https://v2.jokeapi.dev/joke/Any?format=txt&contains={payload}"
     ) as resp:
         replies.add(text=resp.text)
@@ -126,7 +135,7 @@ def dadjoke(replies) -> None:
         "User-Agent": "SimpleBot (https://github.com/simplebot-org/simplebot)",
         "Accept": "text/plain",
     }
-    with requests.get("https://icanhazdadjoke.com/", headers=headers) as resp:
+    with session.get("https://icanhazdadjoke.com/", headers=headers) as resp:
         replies.add(text=resp.text)
 
 
@@ -165,9 +174,5 @@ def file2html(payload, message, replies) -> None:
 @simplebot.command
 def wttr(payload, message, replies) -> None:
     """Search weather info from wttr.in"""
-    url = f"https://wttr.in/{quote(payload)}?Fnp&lang=en"
-    headers = {
-        "user-agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0"
-    }
-    with requests.get(url, headers=headers) as resp:
+    with session.get(f"https://wttr.in/{quote(payload)}?Fnp&lang=en") as resp:
         replies.add(text="Result from wttr.in", html=resp.text, quote=message)
