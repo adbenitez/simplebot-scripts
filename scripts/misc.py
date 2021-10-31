@@ -3,6 +3,7 @@
 import functools
 import io
 import random
+import re
 from urllib.parse import quote
 
 import bs4
@@ -40,19 +41,46 @@ def html2file_filter(message, replies) -> None:
 
 
 @simplebot.command
-def lottery(replies) -> None:
-    """Florida's lottery results."""
+def bolita(replies) -> None:
+    """Los resultados de la bolita (lotería de la Florida)"""
     import feedparser
 
     with session.get("https://flalottery.com/video/en/theWinningNumber.xml") as resp:
         resp.raise_for_status()
         d = feedparser.parse(resp.text)
-    text = ""
+    pick3, pick4 = "", ""
+    regex = re.compile(r"([\d-]+) for (\w+) ([\d/]+)")
     for entry in d.entries:
-        if entry.title.lower().startswith(("pick 3", "pick 4")):
-            text += f"{entry.description}\n\n"
-    assert text
-    replies.add(text="**🎰 Drawing Results**\n\n" + text)
+        title = entry.title.lower()
+        if title.startswith(("pick 3", "pick 4")):
+            text = ""
+            for result in regex.findall(entry.description):
+                text += f"{result[2]} {'☀️ Día' if result[1] == 'Midday' else '🌙 Noche'}: {result[0]}\n"
+            if title.startswith("pick 3"):
+                pick3 = text
+            else:
+                pick4 = text
+    assert pick3 and pick4
+    replies.add(text=f"**🎰 Resultados**\n\n**PICK 3**\n{pick3}\n**PICK 4**\n{pick4}")
+
+
+@simplebot.command
+def adivinanza(replies) -> None:
+    """Probabilidad y adivinanza para la bolita (lotería de la Florida)"""
+    with session.get("https://bolitacuba.com/probabilidad-y-adivinanza/") as resp:
+        resp.raise_for_status()
+        soup = bs4.BeautifulSoup(resp.text, "html5lib")
+    with session.get(soup.find(class_="alm-reveal").a["href"]) as resp:
+        resp.raise_for_status()
+        soup = bs4.BeautifulSoup(resp.text, "html5lib")
+    soup = soup.find(class_="entry-content")
+    for tag in soup(class_="code-block"):
+        tag.extract()
+    for tag in soup("i", class_="fa-sun"):
+        tag.replace_with("☀️")
+    for tag in soup("i", class_="fa-moon"):
+        tag.replace_with("🌙")
+    replies.add(text=_soup2text(soup))
 
 
 @simplebot.command
