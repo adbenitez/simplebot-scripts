@@ -4,6 +4,7 @@ import functools
 import io
 import random
 import re
+from datetime import datetime, timedelta
 from urllib.parse import quote
 
 import bs4
@@ -70,9 +71,19 @@ def adivinanza(replies) -> None:
     with session.get("https://bolitacuba.com/probabilidad-y-adivinanza/") as resp:
         resp.raise_for_status()
         soup = bs4.BeautifulSoup(resp.text, "html5lib")
-    with session.get(soup.find(class_="alm-reveal").a["href"]) as resp:
-        resp.raise_for_status()
-        soup = bs4.BeautifulSoup(resp.text, "html5lib")
+    url = soup.find(class_="alm-reveal").a["href"]
+    base_url, resource = url.rstrip("/").rsplit("/", maxsplit=1)
+    resource = (
+        datetime.strptime(resource.split("pya-")[-1], "%m-%d-%Y") + timedelta(days=1)
+    ).strftime("pya-%m-%d-%Y")
+    try:
+        with session.get(f"{base_url}/{resource}/") as resp:
+            resp.raise_for_status()
+            soup = bs4.BeautifulSoup(resp.text, "html5lib")
+    except requests.HTTPError:
+        with session.get(url) as resp:
+            resp.raise_for_status()
+            soup = bs4.BeautifulSoup(resp.text, "html5lib")
     soup = soup.find(class_="entry-content")
     for tag in soup(class_="code-block"):
         tag.extract()
