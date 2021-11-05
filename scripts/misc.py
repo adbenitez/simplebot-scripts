@@ -17,7 +17,7 @@ session.headers.update(
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:92.0) Gecko/20100101 Firefox/92.0"
     }
 )
-session.request = functools.partial(session.request, timeout=15)  # type: ignore
+session.request = functools.partial(session.request, timeout=30)  # type: ignore
 
 
 @simplebot.hookimpl
@@ -66,7 +66,7 @@ def bolita(replies) -> None:
 
 
 @simplebot.command
-def adivinanza(replies) -> None:
+def adivinanza(bot, replies) -> None:
     """Probabilidad y adivinanza para la bolita (lotería de la Florida)"""
     with session.get("https://bolitacuba.com/probabilidad-y-adivinanza/") as resp:
         resp.raise_for_status()
@@ -80,7 +80,8 @@ def adivinanza(replies) -> None:
         with session.get(f"{base_url}/{resource}/") as resp:
             resp.raise_for_status()
             soup = bs4.BeautifulSoup(resp.text, "html5lib")
-    except requests.HTTPError:
+    except requests.HTTPError as err:
+        bot.logger.exception(err)
         with session.get(url) as resp:
             resp.raise_for_status()
             soup = bs4.BeautifulSoup(resp.text, "html5lib")
