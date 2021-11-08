@@ -129,6 +129,12 @@ def cmd_eval(payload, bot, command, message, replies) -> None:  # noqa
     eval(payload)
 
 
+@simplebot.command(admin=True)
+def verify(bot: DeltaBot, replies: Replies) -> None:
+    """Get the bot's verification link."""
+    replies.add(text=bot.account.get_setup_contact_qr())
+
+
 def get_banned(bot: DeltaBot) -> Set[str]:
     return set((bot.get("banned", scope=__name__) or "").split())
 
