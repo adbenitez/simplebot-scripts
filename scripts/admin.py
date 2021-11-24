@@ -110,14 +110,14 @@ def destroy(bot: DeltaBot, message) -> None:
 def config(payload: str, bot: DeltaBot, replies: Replies) -> None:
     """set config"""
     args = payload.split(maxsplit=1)
-    if len(args) == 2:
-        key, val = args
-        bot.account.set_config(key, val)
-    else:
-        try:
+    try:
+        if len(args) == 2:
+            key, val = args
+            bot.account.set_config(key, val)
+        else:
             replies.add(text=f"{payload}: {bot.account.get_config(payload)}")
-        except KeyError as err:
-            replies.add(text=str(err))
+    except KeyError as err:
+        replies.add(text=str(err))
 
 
 @simplebot.command(name="/exec", admin=True)
