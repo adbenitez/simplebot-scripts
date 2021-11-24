@@ -114,7 +114,10 @@ def config(payload: str, bot: DeltaBot, replies: Replies) -> None:
         key, val = args
         bot.account.set_config(key, val)
     else:
-        replies.add(text=f"{key}: {bot.account.get_config(key)}")
+        try:
+            replies.add(text=f"{payload}: {bot.account.get_config(payload)}")
+        except KeyError as err:
+            replies.add(text=str(err))
 
 
 @simplebot.command(name="/exec", admin=True)
