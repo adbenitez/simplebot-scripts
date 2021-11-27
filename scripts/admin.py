@@ -2,12 +2,14 @@
 
 import os
 import subprocess
+import time
+from threading import Thread
 from typing import List, Optional, Set
 
 import deltachat
 import psutil
 import simplebot
-from simplebot.bot import DeltaBot, Replies
+from simplebot.bot import DeltaBot, Replies, get_admins
 
 
 @simplebot.hookimpl(tryfirst=True)
@@ -30,6 +32,11 @@ def deltabot_member_added(bot: DeltaBot, chat, contact) -> None:
         contact.block()
         bot.plugins._pm.hook.deltabot_ban(bot=bot, contact=contact)
         contact.block()
+
+
+@simplebot.hookimpl
+def deltabot_init(bot: DeltaBot) -> None:
+    Thread(target=check_quota, args=(bot,)).start()
 
 
 @simplebot.command(admin=True)
@@ -158,3 +165,17 @@ def sizeof_fmt(num: float) -> str:
             return "%3.1f%s%s" % (num, unit, suffix)  # noqa
         num /= 1024.0
     return "%.1f%s%s" % (num, "Yi", suffix)  # noqa
+
+
+def check_quota(bot: DeltaBot) -> None:
+    while True:
+        try:
+            quota = int(bot.account.get_config("quota_exceeding"))
+            if quota >= 80:
+                for admin in get_admins(bot):
+                    bot.get_chat(admin).send_text(
+                        f"Bot's inbox is almost full: {quota}%"
+                    )
+        except KeyError as err:
+            bot.logger.exception(err)
+        time.sleep(60 * 60 * 24)
