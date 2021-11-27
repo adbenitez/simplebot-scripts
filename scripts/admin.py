@@ -87,18 +87,6 @@ def unban2(bot: DeltaBot, payload: str, replies: Replies) -> None:
 
 
 @simplebot.command(admin=True)
-def kick(message) -> None:
-    """Kick from group the sender of the quoted message."""
-    message.chat.remove_contact(message.quote.get_sender_contact())
-
-
-@simplebot.command(admin=True)
-def add(message) -> None:
-    """Add quoted unknown sender to group."""
-    message.chat.add_contact(message.quote.get_sender_contact())
-
-
-@simplebot.command(admin=True)
 def destroy(bot: DeltaBot, message) -> None:
     """Destroy group."""
     for c in message.chat.get_contacts():
