@@ -1,10 +1,15 @@
+"""
+requirements:
+simplebot_downloader
+yt-dlp
+"""
 import os
 import time
 from threading import Thread
 from typing import Callable, Dict, Generator
 
 import simplebot
-import youtube_dl
+from yt_dlp import YoutubeDL
 from deltachat import Message
 from simplebot.bot import DeltaBot, Replies
 from simplebot_downloader.util import (  # noqa
@@ -50,7 +55,7 @@ def download_ytvideo(url: str, folder: str, max_size: int) -> str:
         "socket_timeout": 15,
         "outtmpl": os.path.join(folder, "%(id)s.%(ext)s"),
     }
-    with youtube_dl.YoutubeDL(opts) as yt:
+    with YoutubeDL(opts) as yt:
         yt.download([url])
     return os.path.join(folder, os.listdir(folder)[0])
 
@@ -62,7 +67,7 @@ def download_ytaudio(url: str, folder: str, max_size: int) -> str:
         "socket_timeout": 15,
         "outtmpl": os.path.join(folder, "%(id)s.%(ext)s"),
     }
-    with youtube_dl.YoutubeDL(opts) as yt:
+    with YoutubeDL(opts) as yt:
         yt.download([url])
     return os.path.join(folder, os.listdir(folder)[0])
 
