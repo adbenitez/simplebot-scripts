@@ -35,7 +35,7 @@ def deltabot_member_added(bot: DeltaBot, chat, contact) -> None:
 
 
 @simplebot.hookimpl
-def deltabot_init(bot: DeltaBot) -> None:
+def deltabot_start(bot: DeltaBot) -> None:
     Thread(target=check_quota, args=(bot,)).start()
 
 
