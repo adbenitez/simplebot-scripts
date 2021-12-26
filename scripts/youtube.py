@@ -9,10 +9,12 @@ from threading import Thread
 from typing import Callable, Dict, Generator
 
 import simplebot
+
 try:
     from yt_dlp import YoutubeDL
 except ModuleNotFoundError:
     from youtube_dl import YoutubeDL
+
 from deltachat import Message
 from simplebot.bot import DeltaBot, Replies
 from simplebot_downloader.util import (  # noqa
