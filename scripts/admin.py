@@ -170,7 +170,7 @@ def sizeof_fmt(num: float) -> str:
 def check_quota(bot: DeltaBot) -> None:
     while True:
         try:
-            quota = int(bot.account.get_config("quota_exceeding"))
+            quota = int(bot.account.get_config("quota_exceeding") or 0)
             if quota >= 80:
                 for admin in get_admins(bot):
                     bot.get_chat(admin).send_text(
