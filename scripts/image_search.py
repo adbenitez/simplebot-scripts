@@ -107,8 +107,8 @@ def _startpage_imgs(query: str) -> set:
     for div in soup(class_="image-container"):
         if not div.img or div.img.startswith("data:"):
             continue
-        img = re.sub(r"^(//.*)", fr"{root.split(':', 1)[0]}:\1", div.img)
-        img = re.sub(r"^(/.*)", fr"{root}\1", img)
+        img = re.sub(r"^(//.*)", rf"{root.split(':', 1)[0]}:\1", div.img)
+        img = re.sub(r"^(/.*)", rf"{root}\1", img)
         if not re.match(r"^https?://", img):
             img = f"{url}/{img}"
         links.add(img)
