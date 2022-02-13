@@ -1,4 +1,8 @@
-"""Administrator tools."""
+"""Administrator tools.
+
+requirements:
+psutil
+"""
 
 import os
 import subprocess
