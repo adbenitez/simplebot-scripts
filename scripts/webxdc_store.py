@@ -1,6 +1,7 @@
 # requirements:
 # toml==0.10.2
 
+import json
 import os
 import shutil
 import string
@@ -9,6 +10,8 @@ from zipfile import ZipFile
 import simplebot
 import toml
 from deltachat import Message
+from deltachat.capi import lib
+from deltachat.cutil import as_dc_charpointer, from_dc_charpointer
 from simplebot.bot import DeltaBot, Replies
 
 FOLDER = ""
@@ -34,7 +37,7 @@ def deltabot_start(bot: DeltaBot) -> None:
 @simplebot.filter(admin=True)
 def filter_messages(bot: DeltaBot, message: Message, replies: Replies) -> None:
     """Webxdc store"""
-    if not message.chat.is_group() or not is_webxdc(message.filename):
+    if message.chat.is_group() or not is_webxdc(message.filename):
         return
 
     addr = message.get_sender_contact().addr
@@ -107,12 +110,92 @@ def download(payload: str, message: Message, replies: Replies) -> None:
 
 @simplebot.command(admin=True)
 def delete(payload: str, message: Message, replies: Replies) -> None:
+    """Delete the webxdc with the given ID"""
     path = os.path.join(FOLDER, payload + ".xdc")
     if os.path.exists(path):
         os.remove(path)
         replies.add(filename="✔️Deleted")
     else:
         replies.add(text=f"❌ Unknow webxdc ID", quote=message)
+
+
+@simplebot.command(admin=True)
+def update(bot: DeltaBot, message: Message, replies: Replies) -> None:
+    """Send the latest version of the quoted webxdc along with its current state"""
+    quote = message.quote
+    if (
+        not quote
+        or not is_webxdc(quote.filename)
+        or quote.get_sender_contact() != bot.self_contact
+    ):
+        replies.add(text=f"❌ Wrong usage", quote=message)
+        return
+
+    meta = get_metadata(quote.filename)
+    path = os.path.join(FOLDER, meta["id"] + ".xdc")
+    if os.path.exists(path):
+        msg = replies._create_message(filename=path)
+        quote.chat.set_draft(msg)
+
+        updates = json.loads(
+            from_dc_charpointer(
+                lib.dc_get_webxdc_status_updates(
+                    bot.account._dc_context,
+                    quote.id,
+                    0,
+                )
+            )
+        )
+        if updates and updates[0].get("payload", {}).get("score") is not None:
+            scores = {}
+            for update in updates:
+                payload = update["payload"]
+                addr = payload["addr"]
+                old_payload = scores.setdefault(addr, update)["payload"]
+                if old_payload["score"] < payload["score"]:
+                    scores[addr] = update
+            updates = list(scores.values())
+        for update in updates:
+            lib.dc_send_webxdc_status_update(
+                bot.account._dc_context,
+                msg.id,
+                as_dc_charpointer(json.dumps(update)),
+                as_dc_charpointer("sync"),
+            )
+
+        quote.chat.send_msg(msg)
+    else:
+        replies.add(text=f"❌ Unknow webxdc ID", quote=message)
+
+
+@simplebot.command(admin=True)
+def send(bot: DeltaBot, payload: str, message: Message, replies: Replies) -> None:
+    """Send the given payload in the quoted webxdc"""
+    quote = message.quote
+    if (
+        not quote
+        or not is_webxdc(quote.filename)
+    ):
+        replies.add(text=f"❌ Wrong usage", quote=message)
+        return
+
+    updates = json.loads(payload)
+    if updates and updates[0].get("payload", {}).get("score") is not None:
+        scores = {}
+        for update in updates:
+            payload = update["payload"]
+            addr = payload["addr"]
+            old_payload = scores.setdefault(addr, update)["payload"]
+            if old_payload["score"] < payload["score"]:
+                scores[addr] = update
+        updates = list(scores.values())
+    for update in updates:
+        lib.dc_send_webxdc_status_update(
+            bot.account._dc_context,
+            quote.id,
+            as_dc_charpointer(json.dumps(update)),
+            as_dc_charpointer("sync"),
+        )
 
 
 def is_webxdc(path: str) -> bool:
