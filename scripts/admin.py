@@ -119,18 +119,6 @@ def config(payload: str, bot: DeltaBot, replies: Replies) -> None:
         replies.add(text=str(err))
 
 
-@simplebot.command(name="/exec", admin=True)
-def exec_cmd(payload: str, replies: Replies) -> None:
-    """Execute shell command."""
-    replies.add(text=subprocess.check_output(payload, shell=True))
-
-
-@simplebot.command(name="/eval", admin=True)
-def cmd_eval(payload, bot, command, message, replies) -> None:  # noqa
-    """Evaluate python code."""
-    eval(payload)
-
-
 @simplebot.command(admin=True)
 def verify(bot: DeltaBot, replies: Replies) -> None:
     """Get the bot's verification link."""
