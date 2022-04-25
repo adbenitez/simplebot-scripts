@@ -3,9 +3,9 @@ requirements:
 simplebot_downloader
 yt-dlp or youtube-dl
 """
-from collections import OrderedDict
 import os
 import time
+from collections import OrderedDict
 from threading import Thread
 from typing import Callable, Dict, Generator
 
@@ -18,12 +18,7 @@ except ModuleNotFoundError:
 
 from deltachat import Message
 from simplebot.bot import DeltaBot, Replies
-from simplebot_downloader.util import (  # noqa
-    FileTooBig,
-    download_file,
-    get_setting,
-    split_download,
-)
+from simplebot_downloader.util import FileTooBig, get_setting, split_download  # noqa
 
 MAX_QUEUE_SIZE = 50
 downloads: Dict[str, Generator] = OrderedDict()
@@ -83,7 +78,7 @@ def queue_download(
     bot: DeltaBot,
     message: Message,
     replies: Replies,
-    downloader: Callable = download_file,
+    downloader: Callable,
 ) -> None:
     addr = message.get_sender_contact().addr
     if addr in downloads:

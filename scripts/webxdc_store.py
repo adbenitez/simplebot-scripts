@@ -172,10 +172,7 @@ def update(bot: DeltaBot, message: Message, replies: Replies) -> None:
 def send(bot: DeltaBot, payload: str, message: Message, replies: Replies) -> None:
     """Send the given payload in the quoted webxdc"""
     quote = message.quote
-    if (
-        not quote
-        or not is_webxdc(quote.filename)
-    ):
+    if not quote or not is_webxdc(quote.filename):
         replies.add(text=f"❌ Wrong usage", quote=message)
         return
 
