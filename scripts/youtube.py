@@ -100,7 +100,7 @@ def _send_files(bot: DeltaBot) -> None:
     while True:
         items = list(downloads.items())
         items = items and [items[0]]
-        bot.logger.debug("Processing downloads queue (%s)", len(items))
+        bot.logger.debug("Processing YouTube downloads queue (%s)", len(items))
         start = time.time()
         for addr, parts in items:
             chat = bot.get_chat(addr)
