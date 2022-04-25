@@ -20,7 +20,7 @@ from deltachat import Message
 from simplebot.bot import DeltaBot, Replies
 from simplebot_downloader.util import FileTooBig, get_setting, split_download  # noqa
 
-MAX_QUEUE_SIZE = 50
+MAX_QUEUE_SIZE = 20
 downloads: Dict[str, Generator] = OrderedDict()
 
 
