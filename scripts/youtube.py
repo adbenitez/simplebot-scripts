@@ -3,6 +3,7 @@ requirements:
 simplebot_downloader
 yt-dlp or youtube-dl
 """
+from collections import OrderedDict
 import os
 import time
 from threading import Thread
@@ -25,7 +26,7 @@ from simplebot_downloader.util import (  # noqa
 )
 
 MAX_QUEUE_SIZE = 50
-downloads: Dict[str, Generator] = {}
+downloads: Dict[str, Generator] = OrderedDict()
 
 
 @simplebot.hookimpl
@@ -103,6 +104,7 @@ def _send_files(bot: DeltaBot) -> None:
     replies = Replies(bot, bot.logger)
     while True:
         items = list(downloads.items())
+        items = items and [items[0]]
         bot.logger.debug("Processing downloads queue (%s)", len(items))
         start = time.time()
         for addr, parts in items:
