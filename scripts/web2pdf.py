@@ -33,5 +33,5 @@ def web2pdf_filter(bot: DeltaBot, message: Message, replies: Replies) -> None:
             replies.add(filename=file.name, quote=message)
         except Exception:
             replies.add(
-                text="Failed to retrive web site, is the URL correct?", quote=message
+                text="Failed to retrieve web site, is the URL correct?", quote=message
             )
