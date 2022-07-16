@@ -21,7 +21,7 @@ from simplebot.bot import DeltaBot, Replies
 @simplebot.filter
 def verification_filter(message: Message) -> None:
     """Send me your contact QR or OPENPGP4FPR link in private and I will verify you."""
-    if message.chat.is_group():
+    if message.chat.is_multiuser():
         return
     if message.is_image():
         results = pyzbar.decode(Image.open(message.filename))

@@ -33,7 +33,7 @@ def deltabot_member_added(bot, chat, contact, actor) -> None:
 @simplebot.filter
 def html2file_filter(message, replies) -> None:
     """Send me an html message in private to get html content as file."""
-    if not message.chat.is_group() and message.has_html():
+    if not message.chat.is_multiuser() and message.has_html():
         replies.add(
             filename="message.html",
             bytefile=io.BytesIO(message.html.encode(errors="replace")),
