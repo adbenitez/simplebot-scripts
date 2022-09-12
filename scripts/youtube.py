@@ -13,8 +13,10 @@ import simplebot
 
 try:
     from yt_dlp import YoutubeDL
+    from yt_dlp.utils import MaxDownloadsReached
 except ModuleNotFoundError:
     from youtube_dl import YoutubeDL
+    from youtube_dl.utils import MaxDownloadsReached
 
 from deltachat import Message
 from simplebot.bot import DeltaBot, Replies
@@ -56,8 +58,11 @@ def download_ytvideo(url: str, folder: str, max_size: int) -> str:
         "socket_timeout": 15,
         "outtmpl": os.path.join(folder, "%(id)s.%(ext)s"),
     }
-    with YoutubeDL(opts) as yt:
-        yt.download([url])
+    try:
+        with YoutubeDL(opts) as yt:
+            yt.download([url])
+    except MaxDownloadsReached:
+        pass
     return os.path.join(folder, os.listdir(folder)[0])
 
 
@@ -68,8 +73,11 @@ def download_ytaudio(url: str, folder: str, max_size: int) -> str:
         "socket_timeout": 15,
         "outtmpl": os.path.join(folder, "%(id)s.%(ext)s"),
     }
-    with YoutubeDL(opts) as yt:
-        yt.download([url])
+    try:
+        with YoutubeDL(opts) as yt:
+            yt.download([url])
+    except MaxDownloadsReached:
+        pass
     return os.path.join(folder, os.listdir(folder)[0])
 
 
