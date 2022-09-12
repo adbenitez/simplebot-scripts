@@ -53,7 +53,7 @@ def yt2audio(bot: DeltaBot, payload: str, message: Message, replies: Replies) ->
 
 def download_ytvideo(url: str, folder: str, max_size: int) -> str:
     opts = {
-        "format": f"best[filesize<{max_size}]",
+        "format": f"best[filesize<?{max_size}]",
         "max_downloads": 1,
         "socket_timeout": 15,
         "outtmpl": os.path.join(folder, "%(id)s.%(ext)s"),
@@ -68,7 +68,7 @@ def download_ytvideo(url: str, folder: str, max_size: int) -> str:
 
 def download_ytaudio(url: str, folder: str, max_size: int) -> str:
     opts = {
-        "format": f"bestaudio[filesize<{max_size}]",
+        "format": f"bestaudio[filesize<?{max_size}]",
         "max_downloads": 1,
         "socket_timeout": 15,
         "outtmpl": os.path.join(folder, "%(id)s.%(ext)s"),
