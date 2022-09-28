@@ -1,6 +1,12 @@
 """
 requirements:
 pdfkit
+
+you also need to install wkhtmltopdf package, Debian/Ubuntu example:
+
+$ sudo apt-get install wkhtmltopdf
+
+Warning! Version in debian/ubuntu repos have reduced functionality (because it compiled without the wkhtmltopdf QT patches), such as adding outlines, headers, footers, TOC etc. To use this options you should install static binary from wkhtmltopdf site: https://wkhtmltopdf.org/
 """
 import re
 from tempfile import NamedTemporaryFile
